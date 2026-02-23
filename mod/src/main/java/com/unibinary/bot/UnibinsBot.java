@@ -11,10 +11,6 @@ public class UnibinsBot implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LOGGER.info("UnibinsBot模组初始化");
-		
-		// 注册命令
-		OpenClawBridge.register();
-		
 		LOGGER.info("模组初始化完成，等待命令注册");
 	}
 }
