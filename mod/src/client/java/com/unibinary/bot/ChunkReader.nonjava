@@ -1,0 +1,504 @@
+package com.unibinary.bot;
+
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.LevelResource;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/**
+ * 区块读取器 - 通过Python脚本读取Minecraft世界数据
+ * 注意：这个类在客户端包中，因为它处理玩家命令
+ */
+public class ChunkReader {
+    private static final Logger LOGGER = LoggerFactory.getLogger("UnibinsBot/ChunkReader");
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2);
+    
+    // Python脚本配置
+    private static final String PYTHON_SCRIPT_NAME = "mcapy_reader.py";
+    private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().contains("win");
+    private static final int COMMAND_TIMEOUT_SECONDS = 60;
+    
+    public static void register() {
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            LOGGER.info("注册区块读取命令（客户端）");
+            
+            // 读取当前玩家位置的区块
+            dispatcher.register(
+                Commands.literal("botchunk")
+                    .executes(context -> {
+                        Player player = context.getSource().getPlayer();
+                        if (player == null) {
+                            context.getSource().sendSuccess(() -> 
+                                Component.literal("❌ 只有玩家可以使用此命令"), 
+                                false
+                            );
+                            return 0;
+                        }
+                        
+                        int chunkX = (int) (player.getX() / 16);
+                        int chunkZ = (int) (player.getZ() / 16);
+                        return readChunkInfo(context, chunkX, chunkZ);
+                    })
+            );
+            
+            // 读取指定坐标的区块
+            dispatcher.register(
+                Commands.literal("botchunk")
+                    .then(Commands.argument("chunkX", IntegerArgumentType.integer())
+                        .then(Commands.argument("chunkZ", IntegerArgumentType.integer())
+                            .executes(context -> {
+                                int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
+                                int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
+                                return readChunkInfo(context, chunkX, chunkZ);
+                            })
+                        )
+                    )
+            );
+            
+            // 读取玩家坐标对应的区块
+            dispatcher.register(
+                Commands.literal("botchunk")
+                    .then(Commands.literal("at")
+                        .then(Commands.argument("x", IntegerArgumentType.integer())
+                            .then(Commands.argument("z", IntegerArgumentType.integer())
+                                .executes(context -> {
+                                    int x = IntegerArgumentType.getInteger(context, "x");
+                                    int z = IntegerArgumentType.getInteger(context, "z");
+                                    int chunkX = x / 16;
+                                    int chunkZ = z / 16;
+                                    return readChunkInfo(context, chunkX, chunkZ);
+                                })
+                            )
+                        )
+                    )
+            );
+            
+            // 列出区域文件
+            dispatcher.register(
+                Commands.literal("botregions")
+                    .executes(context -> {
+                        return listRegions(context);
+                    })
+            );
+            
+            // 更新Python脚本
+            dispatcher.register(
+                Commands.literal("botupdate")
+                    .executes(context -> {
+                        return updatePythonScript(context);
+                    })
+            );
+            
+            LOGGER.info("区块读取命令注册完成（客户端）");
+        });
+    }
+    
+    private static int readChunkInfo(CommandContext<CommandSourceStack> context, int chunkX, int chunkZ) {
+        CommandSourceStack source = context.getSource();
+        
+        try {
+            Player player = source.getPlayer();
+            if (player == null) {
+                source.sendSuccess(() -> Component.literal("❌ 只有玩家可以使用此命令"), false);
+                return 0;
+            }
+            
+            source.sendSuccess(() -> Component.literal("⏳ 正在读取区块 (" + chunkX + ", " + chunkZ + ")..."), false);
+            
+            // 异步执行Python脚本
+            CompletableFuture.supplyAsync(() -> {
+                Process pythonProcess = null;
+                try {
+                    // 获取Python脚本路径
+                    Path pythonScript = findPythonScript();
+                    if (pythonScript == null || !Files.exists(pythonScript)) {
+                        return new CommandResult(false, "找不到Python脚本: " + PYTHON_SCRIPT_NAME);
+                    }
+                    
+                    // 获取存档路径
+                    MinecraftServer server = source.getServer();
+                    String savePath = server.getWorldPath(LevelResource.ROOT).toAbsolutePath().toString();
+                    
+                    // 构建Python命令
+                    String[] command;
+                    if (IS_WINDOWS) {
+                        command = new String[] {
+                            "python",
+                            pythonScript.toString(),
+                            "--save",
+                            savePath,
+                            "--chunk",
+                            String.valueOf(chunkX),
+                            String.valueOf(chunkZ)
+                        };
+                    } else {
+                        command = new String[] {
+                            "python3",
+                            pythonScript.toString(),
+                            "--save",
+                            savePath,
+                            "--chunk",
+                            String.valueOf(chunkX),
+                            String.valueOf(chunkZ)
+                        };
+                    }
+                    
+                    LOGGER.info("执行Python命令: {}", String.join(" ", command));
+                    
+                    // 执行命令
+                    pythonProcess = Runtime.getRuntime().exec(command);
+                    
+                    // 读取输出
+                    StringBuilder output = new StringBuilder();
+                    StringBuilder error = new StringBuilder();
+                    
+                    // 异步读取错误流
+                    Thread errorReader = new Thread(() -> {
+                        try (BufferedReader reader = new BufferedReader(
+                                new InputStreamReader(pythonProcess.getErrorStream(), StandardCharsets.UTF_8))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                error.append(line).append("\n");
+                            }
+                        } catch (Exception e) {
+                            LOGGER.debug("读取错误流时出错", e);
+                        }
+                    });
+                    errorReader.setDaemon(true);
+                    errorReader.start();
+                    
+                    // 读取输出流
+                    try (BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(pythonProcess.getInputStream(), StandardCharsets.UTF_8))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            output.append(line).append("\n");
+                        }
+                    }
+                    
+                    // 等待进程完成
+                    boolean completed = pythonProcess.waitFor(COMMAND_TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS);
+                    if (!completed) {
+                        pythonProcess.destroyForcibly();
+                        return new CommandResult(false, "Python脚本执行超时（超过" + COMMAND_TIMEOUT_SECONDS + "秒）");
+                    }
+                    
+                    int exitCode = pythonProcess.exitValue();
+                    String responseText = output.toString().trim();
+                    String errorText = error.toString().trim();
+                    
+                    LOGGER.info("Python脚本退出码: {}", exitCode);
+                    if (!errorText.isEmpty()) {
+                        LOGGER.warn("Python脚本错误: {}", errorText);
+                    }
+                    
+                    if (exitCode == 0) {
+                        // 成功 - 返回输出
+                        String formattedOutput = formatPythonOutput(responseText);
+                        return new CommandResult(true, formattedOutput);
+                    } else {
+                        // 失败 - 返回错误信息
+                        String errorMsg = "Python脚本执行失败 (退出码: " + exitCode + ")";
+                        if (!errorText.isEmpty()) {
+                            errorMsg += "\n错误: " + errorText;
+                        }
+                        return new CommandResult(false, errorMsg);
+                    }
+                    
+                } catch (Exception e) {
+                    LOGGER.error("执行Python脚本时出错", e);
+                    return new CommandResult(false, "执行错误: " + e.getMessage());
+                } finally {
+                    // 清理进程
+                    if (pythonProcess != null && pythonProcess.isAlive()) {
+                        try {
+                            pythonProcess.destroyForcibly();
+                        } catch (Exception e) {
+                            LOGGER.warn("清理进程时出错", e);
+                        }
+                    }
+                }
+                
+            }, EXECUTOR).thenAccept(result -> {
+                // 在主线程中发送响应
+                source.getServer().execute(() -> {
+                    if (result.success()) {
+                        // 分割长消息（Minecraft聊天有长度限制）
+                        String[] messages = splitLongMessage(result.message());
+                        for (String msg : messages) {
+                            source.sendSuccess(() -> Component.literal(msg), false);
+                        }
+                    } else {
+                        source.sendSuccess(() -> Component.literal("❌ " + result.message()), false);
+                    }
+                });
+            });
+            
+            return Command.SINGLE_SUCCESS;
+            
+        } catch (Exception e) {
+            LOGGER.error("处理区块读取请求时出错", e);
+            source.sendSuccess(() -> Component.literal("❌ 处理出错: " + e.getMessage()), false);
+            return 0;
+        }
+    }
+    
+    private static int listRegions(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        
+        try {
+            source.sendSuccess(() -> Component.literal("⏳ 正在列出区域文件..."), false);
+            
+            CompletableFuture.supplyAsync(() -> {
+                Process pythonProcess = null;
+                try {
+                    Path pythonScript = findPythonScript();
+                    if (pythonScript == null || !Files.exists(pythonScript)) {
+                        return new CommandResult(false, "找不到Python脚本");
+                    }
+                    
+                    MinecraftServer server = source.getServer();
+                    String savePath = server.getWorldPath(LevelResource.ROOT).toAbsolutePath().toString();
+                    
+                    String[] command;
+                    if (IS_WINDOWS) {
+                        command = new String[] {
+                            "python",
+                            pythonScript.toString(),
+                            "--save",
+                            savePath,
+                            "--list-regions"
+                        };
+                    } else {
+                        command = new String[] {
+                            "python3",
+                            pythonScript.toString(),
+                            "--save",
+                            savePath,
+                            "--list-regions"
+                        };
+                    }
+                    
+                    pythonProcess = Runtime.getRuntime().exec(command);
+                    
+                    StringBuilder output = new StringBuilder();
+                    try (BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(pythonProcess.getInputStream(), StandardCharsets.UTF_8))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            output.append(line).append("\n");
+                        }
+                    }
+                    
+                    boolean completed = pythonProcess.waitFor(30, java.util.concurrent.TimeUnit.SECONDS);
+                    if (!completed) {
+                        pythonProcess.destroyForcibly();
+                        return new CommandResult(false, "命令执行超时");
+                    }
+                    
+                    int exitCode = pythonProcess.exitValue();
+                    if (exitCode == 0) {
+                        return new CommandResult(true, output.toString().trim());
+                    } else {
+                        return new CommandResult(false, "列出区域文件失败 (退出码: " + exitCode + ")");
+                    }
+                    
+                } catch (Exception e) {
+                    LOGGER.error("列出区域文件时出错", e);
+                    return new CommandResult(false, "执行错误: " + e.getMessage());
+                } finally {
+                    if (pythonProcess != null && pythonProcess.isAlive()) {
+                        pythonProcess.destroyForcibly();
+                    }
+                }
+                
+            }, EXECUTOR).thenAccept(result -> {
+                source.getServer().execute(() -> {
+                    if (result.success()) {
+                        String[] messages = splitLongMessage(result.message());
+                        for (String msg : messages) {
+                            source.sendSuccess(() -> Component.literal(msg), false);
+                        }
+                    } else {
+                        source.sendSuccess(() -> Component.literal("❌ " + result.message()), false);
+                    }
+                });
+            });
+            
+            return Command.SINGLE_SUCCESS;
+            
+        } catch (Exception e) {
+            LOGGER.error("处理区域列表请求时出错", e);
+            source.sendSuccess(() -> Component.literal("❌ 处理出错: " + e.getMessage()), false);
+            return 0;
+        }
+    }
+    
+    private static int updatePythonScript(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        
+        try {
+            source.sendSuccess(() -> Component.literal("⏳ 正在更新Python脚本..."), false);
+            
+            // 从资源中提取最新脚本
+            Path targetScript = getDefaultScriptPath();
+            extractPythonScriptFromResources(targetScript);
+            
+            source.sendSuccess(() -> Component.literal("✅ Python脚本已更新到: " + targetScript), false);
+            return Command.SINGLE_SUCCESS;
+            
+        } catch (Exception e) {
+            LOGGER.error("更新Python脚本时出错", e);
+            source.sendSuccess(() -> Component.literal("❌ 更新失败: " + e.getMessage()), false);
+            return 0;
+        }
+    }
+    
+    /**
+     * 查找Python脚本
+     */
+    private static Path findPythonScript() {
+        // 1. 检查模组目录
+        Path modsDir = Paths.get(System.getProperty("user.dir")).getParent();
+        if (modsDir != null) {
+            Path scriptInMods = modsDir.resolve(PYTHON_SCRIPT_NAME);
+            if (Files.exists(scriptInMods)) {
+                return scriptInMods;
+            }
+        }
+        
+        // 2. 检查桌面
+        String desktop = System.getProperty("user.home") + "/Desktop";
+        Path scriptOnDesktop = Paths.get(desktop, PYTHON_SCRIPT_NAME);
+        if (Files.exists(scriptOnDesktop)) {
+            return scriptOnDesktop;
+        }
+        
+        // 3. 使用默认路径
+        Path defaultScript = getDefaultScriptPath();
+        if (!Files.exists(defaultScript)) {
+            // 尝试从资源中提取
+            extractPythonScriptFromResources(defaultScript);
+        }
+        
+        return defaultScript;
+    }
+    
+    /**
+     * 获取默认脚本路径
+     */
+    private static Path getDefaultScriptPath() {
+        String gameDir = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().toString();
+        return Paths.get(gameDir, PYTHON_SCRIPT_NAME);
+    }
+    
+    /**
+     * 从资源中提取Python脚本（静态方法，可从外部调用）
+     */
+    public static void extractPythonScriptFromResourcesStatic(Path targetPath) {
+        extractPythonScriptFromResources(targetPath);
+    }
+    
+    /**
+     * 从资源中提取Python脚本
+     */
+    private static void extractPythonScriptFromResources(Path targetPath) {
+        try {
+            // 尝试从类路径读取脚本（在jar包中的路径）
+            InputStream resourceStream = ChunkReader.class.getResourceAsStream("/assets/unibinsbot/scripts/" + PYTHON_SCRIPT_NAME);
+            if (resourceStream != null) {
+                Files.copy(resourceStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                LOGGER.info("从jar资源中提取Python脚本到: {}", targetPath);
+                
+                // 确保脚本有可执行权限（Unix/Linux）
+                if (!IS_WINDOWS) {
+                    targetPath.toFile().setExecutable(true);
+                }
+            } else {
+                LOGGER.warn("在jar资源中找不到Python脚本: /assets/unibinsbot/scripts/{}", PYTHON_SCRIPT_NAME);
+                
+                // 创建默认脚本
+                String defaultScript = getDefaultPythonScript();
+                Files.writeString(targetPath, defaultScript, StandardCharsets.UTF_8);
+                LOGGER.info("创建默认Python脚本到: {}", targetPath);
+            }
+        } catch (IOException e) {
+            LOGGER.error("提取Python脚本时出错", e);
+        }
+    }
+    
+    /**
+     * 获取默认Python脚本内容
+     */
+    private static String getDefaultPythonScript() {
+        // 这里可以嵌入一个简化版的脚本
+        return "#!/usr/bin/env python3\n" +
+               "print('这是一个占位符Python脚本，请将完整的mcapy_reader.py放在模组目录或桌面')";
+    }
+    
+    /**
+     * 格式化Python输出（适合Minecraft聊天显示）
+     */
+    private static String formatPythonOutput(String output) {
+        // 简化输出，移除过多的空白行
+        return output.replaceAll("\n{3,}", "\n\n");
+    }
+    
+    /**
+     * 分割长消息（Minecraft聊天每行约256字符）
+     */
+    private static String[] splitLongMessage(String message) {
+        if (message.length() <= 200) {
+            return new String[] { message };
+        }
+        
+        String[] lines = message.split("\n");
+        java.util.List<String> result = new java.util.ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        
+        for (String line : lines) {
+            if (current.length() + line.length() + 1 > 200) {
+                result.add(current.toString());
+                current = new StringBuilder();
+            }
+            if (current.length() > 0) {
+                current.append("\n");
+            }
+            current.append(line);
+        }
+        
+        if (current.length() > 0) {
+            result.add(current.toString());
+        }
+        
+        return result.toArray(new String[0]);
+    }
+    
+    /**
+     * 命令执行结果
+     */
+    public static record CommandResult(boolean success, String message) {
+        @Override
+        public String toString() {
+            return "CommandResult{success=" + success + ", message='" + message + "'}";
+        }
+    }
+}

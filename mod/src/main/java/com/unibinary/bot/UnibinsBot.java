@@ -1,6 +1,7 @@
 package com.unibinary.bot;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +11,5 @@ public class UnibinsBot implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("UnibinsBot模组初始化");
-		LOGGER.info("模组初始化完成，等待命令注册");
 	}
 }

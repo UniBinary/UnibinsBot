@@ -86,7 +86,8 @@ public class OpenClawBridge {
     
     private static int processChatRequest(CommandContext<CommandSourceStack> context, String message) {
         CommandSourceStack source = context.getSource();
-        
+        MinecraftServer server = source.getServer();
+
         try {
             Player player = source.getPlayer();
             if (player == null) {
@@ -101,13 +102,19 @@ public class OpenClawBridge {
                 Process openclawProcess = null;
                 try {
                     // 获取世界信息
-                    String worldInfo = getWorldInfo(source.getServer(), player);
+                    String worldInfo = getWorldInfo(server, player);
                     
                     // 构建完整的消息，包含玩家上下文和世界路径信息
                     StringBuilder fullMessage = new StringBuilder();
                     fullMessage.append("玩家“").append(player.getName().getString())
                             .append("”在Minecraft中说：").append(message).append("（")
                             .append(worldInfo).append("）");
+                    // 获取Python脚本路径
+                    String pythonScriptPath = getPythonScriptPath();
+                    if (pythonScriptPath != null) {
+                        fullMessage.append("用于读取世界区块的Python代码位置（需要mcapy库，如果没有可使用pip安装）：").append(pythonScriptPath).append("，");
+                        fullMessage.append("参数列表请查看代码头部的说明字符串");
+                    }
                     
                     // 对消息进行适当的转义
                     String commandMessage = escapeForCommand(fullMessage.toString());
@@ -223,8 +230,6 @@ public class OpenClawBridge {
                     String worldName = server.getWorldData().getLevelName();
                     info.append("存档名称：").append(worldName).append("。");
                 }
-
-                info.append("如果需要获取世界区块信息，请使用桌面上的mcapy文件夹中的工具。");
             } else {
                 info.append("游戏类型：多人游戏");
                 
@@ -270,6 +275,27 @@ public class OpenClawBridge {
         } else {
             // Unix/Linux: 使用单引号包裹
             return "'" + message.replace("'", "'\"'\"'") + "'";
+        }
+    }
+    
+    /**
+     * 获取Python脚本路径
+     */
+    private static String getPythonScriptPath() {
+        try {
+            java.nio.file.Path scriptPath = java.nio.file.Paths.get(
+                net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().toString(),
+                "mcapy_reader.py"
+            );
+            
+            if (java.nio.file.Files.exists(scriptPath)) {
+                return scriptPath.toAbsolutePath().toString();
+            }
+            
+            return null;
+        } catch (Exception e) {
+            LOGGER.error("获取Python脚本路径时出错", e);
+            return null;
         }
     }
     
