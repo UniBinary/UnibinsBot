@@ -1,0 +1,9 @@
+# A Minecraft Movie Live Event
+
+*页面ID: 180173* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **A_Minecraft_Movie直播活动**
+
+如需查看内容，请访问: [A_Minecraft_Movie直播活动](A_Minecraft_Movie直播活动.md)

@@ -1,0 +1,9 @@
+# Exposed Copper Golem Statue
+
+*页面ID: 158808* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **铜傀儡像**
+
+如需查看内容，请访问: [铜傀儡像](铜傀儡像.md)

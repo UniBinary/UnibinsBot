@@ -1,0 +1,5 @@
+# Classic 0.0.10a
+
+*页面ID: 41547* | *来源: Minecraft Wiki*
+
+# 重定向 [Java版Classic 0.0.10a](Java版Classic 0.0.10a.md)

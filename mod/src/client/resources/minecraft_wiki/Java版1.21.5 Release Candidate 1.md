@@ -1,0 +1,9 @@
+# Java版1.21.5 Release Candidate 1
+
+*页面ID: 178985* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **Java版1.21.5-rc1**
+
+如需查看内容，请访问: [Java版1.21.5-rc1](Java版1.21.5-rc1.md)

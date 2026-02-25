@@ -13,7 +13,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.nio.file.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +33,8 @@ public class OpenClawBridge {
     // 命令行配置
     private static final String OPENCLAW_COMMAND = "openclaw";
     private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().contains("win");
-    private static final int COMMAND_TIMEOUT_SECONDS = 30;
+    private static final int COMMAND_TIMEOUT_SECONDS = 60;
+    private static final String GAME_DIR = FabricLoader.getInstance().getGameDir().toString();
     
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
@@ -85,7 +86,6 @@ public class OpenClawBridge {
     private static int processChatRequest(CommandContext<CommandSourceStack> context, String message) {
         CommandSourceStack source = context.getSource();
         MinecraftServer server = source.getServer();
-
         try {
             Player player = source.getPlayer();
             if (player == null) {
@@ -98,31 +98,43 @@ public class OpenClawBridge {
             // 异步发送请求，避免阻塞游戏线程
             CompletableFuture.supplyAsync(() -> {
                 Process openclawProcess = null;
+                String commandMessage = "";
                 try {
-                    // 获取世界信息
-                    String worldInfo = getWorldInfo(server, player);
-                    
-                    // 构建完整的消息，包含玩家上下文和世界路径信息
-                    StringBuilder fullMessage = new StringBuilder();
-                    fullMessage.append("玩家“").append(player.getName().getString())
-                            .append("”在Minecraft中说：").append(message).append("（")
-                            .append(worldInfo).append("）");
-                    // 获取Python脚本路径
-                    String pythonScriptPath = getPythonScriptPath();
-                    if (pythonScriptPath != null) {
-                        fullMessage.append("用于读取世界区块的Python代码位置（需要mcapy库，如果没有可使用pip安装）：").append(pythonScriptPath).append("，");
-                        fullMessage.append("参数列表请查看代码头部的说明字符串");
+                    if (message.equals("/new")) {
+                        commandMessage = "通过/new启动了一个新会话。如果配置了人设，请以该人设问候用户。保持自我——使用你定义的声音、举止和情绪。将问候限制在1-3句话，并询问用户想做什么。若运行时模型与系统提示中的默认模型不同，请提及默认模型。切勿提及内部步骤、文件、工具或推理。";
+                    } else {
+                        // 获取世界信息
+                        String worldInfo = getWorldInfo(server, player);
+                        
+                        // 构建完整的消息，包含玩家上下文和世界路径信息
+                        StringBuilder fullMessage = new StringBuilder();
+                        fullMessage.append("玩家“").append(player.getName().getString())
+                                .append("”在Minecraft中说：").append(message).append("（")
+                                .append(worldInfo).append("）");
+                        // 获取Python脚本路径
+                        String pythonScriptPath = getPythonScriptPath();
+                        if (pythonScriptPath != null) {
+                            fullMessage.append("用于读取世界区块的Python代码位置（需要mcapy库，如果没有可使用pip安装）：").append(pythonScriptPath).append("，");
+                            fullMessage.append("参数列表请查看代码头部的说明字符串。");
+                        }
+                        // 添加wiki信息
+                        String minecraftWikiPath = getWikiPath();
+                        if (minecraftWikiPath != null) {
+                            fullMessage.append("最新版MinecraftWiki路径：").append(minecraftWikiPath).append("，");
+                            fullMessage.append("如果需要获取游戏知识可以查看。");
+                        }
+                        
+                        // 对消息进行适当的转义
+                        commandMessage = escapeForCommand(fullMessage.toString());
                     }
-                    
-                    // 对消息进行适当的转义
-                    String commandMessage = escapeForCommand(fullMessage.toString());
+
                     LOGGER.info("发送到OpenClaw的消息: {}", commandMessage);
 
                     if (IS_WINDOWS) {
-                        String[] command = {"powershell.exe", "-Command", "openclaw", "agent", "--agent", "main", "--message", commandMessage};
+                        String[] command = {"powershell.exe", "-Command", "openclaw", "agent", "--agent", "main", "--message", commandMessage, "--deliver"};
                         openclawProcess = Runtime.getRuntime().exec(command, null, FabricLoader.getInstance().getGameDir().toFile());
                     } else {
-                        String[] command = {"openclaw", "agent", "--agent", "main", "--message", commandMessage};
+                        String[] command = {"openclaw", "agent", "--agent", "main", "--message", commandMessage, "--deliver"};
                         openclawProcess = Runtime.getRuntime().exec(command, null, FabricLoader.getInstance().getGameDir().toFile());
                     }
                     
@@ -264,6 +276,27 @@ public class OpenClawBridge {
     }
     
     /**
+     * 获取Minecraft Wiki路径
+     */
+    private static String getWikiPath() {
+        try {
+            Path scriptPath = Paths.get(
+                GAME_DIR,
+                "minecraft_wiki"
+            );
+            
+            if (Files.exists(scriptPath)) {
+                return scriptPath.toAbsolutePath().toString();
+            }
+            
+            return null;
+        } catch (Exception e) {
+            LOGGER.error("获取minecraft_wiki路径时出错", e);
+            return null;
+        }
+    }
+    
+    /**
      * 对命令消息进行转义
      */
     private static String escapeForCommand(String message) {
@@ -281,12 +314,12 @@ public class OpenClawBridge {
      */
     private static String getPythonScriptPath() {
         try {
-            java.nio.file.Path scriptPath = java.nio.file.Paths.get(
-                net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().toString(),
+            Path scriptPath = Paths.get(
+                GAME_DIR,
                 "mcapy_reader.py"
             );
             
-            if (java.nio.file.Files.exists(scriptPath)) {
+            if (Files.exists(scriptPath)) {
                 return scriptPath.toAbsolutePath().toString();
             }
             

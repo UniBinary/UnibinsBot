@@ -1,0 +1,14 @@
+# Minecraft: Tetris (Original Soundtrack)
+
+*页面ID: 146862* | *来源: Minecraft Wiki*
+
+* **Minecraft: Tetris (Original Soundtrack)*（《Minecraft：俄罗斯方块（原声带）》）**是由Charles Taylor（driftingaway）为[基岩版](基岩版.md)俄罗斯方块DLC创作的专辑，发布于2024年7月20日。
+
+# 曲目单
+
+# 导航
+
+[Category:原声带](Category:原声带.md)
+
+[en:Minecraft: Tetris (Original Soundtrack)](en:Minecraft: Tetris (Original Soundtrack).md)
+[pt:Minecraft: Tetris (Original Soundtrack)](pt:Minecraft: Tetris (Original Soundtrack).md)

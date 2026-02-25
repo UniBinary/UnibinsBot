@@ -1,0 +1,5 @@
+# Beta 1.8-pre1
+
+*页面ID: 34979* | *来源: Minecraft Wiki*
+
+# 重定向 [Java版Beta 1.8-pre1](Java版Beta 1.8-pre1.md)

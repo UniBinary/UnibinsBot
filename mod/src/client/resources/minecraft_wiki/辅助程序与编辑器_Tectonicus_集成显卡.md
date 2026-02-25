@@ -1,0 +1,48 @@
+# 辅助程序与编辑器/Tectonicus/集成显卡
+
+*页面ID: 16264* | *来源: Minecraft Wiki*
+
+本教程适用于在配备集成显卡的电脑上运行Tectonicus。英特尔显示适配器即为集成显卡（位于南桥芯片中）。
+
+# 集成显卡上的典型Tectonicus错误日志
+若电脑没有独立显卡，Tectonicus日志会出现以下输出：
+
+<pre>
+Could not create pbuffer! (colour:24, alpha:8, depth:16, samples:0)
+Exception while trying to create drawing surface!
+Try specifying numSamples=0 to disable antialiasing
+org.lwjgl.LWJGLException: No Pbuffer support
+        at org.lwjgl.opengl.LinuxPbufferPeerInfo.nInitHandle(Native Method)
+        at org.lwjgl.opengl.LinuxPbufferPeerInfo.<init>(LinuxPbufferPeerInfo.java:52)
+        at org.lwjgl.opengl.LinuxDisplay.createPbuffer(LinuxDisplay.java:1149)
+        at org.lwjgl.opengl.Pbuffer.createPbuffer(Pbuffer.java:234)
+        at org.lwjgl.opengl.Pbuffer.<init>(Pbuffer.java:219)
+        at org.lwjgl.opengl.Pbuffer.<init>(Pbuffer.java:190)
+        at org.lwjgl.opengl.Pbuffer.<init>(Pbuffer.java:166)
+        at tectonicus.rasteriser.LwjglRasteriser.<init>(LwjglRasteriser.java:64)
+        at tectonicus.TileRenderer.<init>(TileRenderer.java:147)
+        at tectonicus.TectonicusApp.run(TectonicusApp.java:422)
+        at tectonicus.TectonicusApp.main(TectonicusApp.java:604)
+</pre>
+
+这表明Tectonicus所使用的LWJGL Java库的PBuffer功能无法正常运行。
+
+# GNU/Linux机器的命令
+适用于Debian分支系统（如Debian或Ubuntu）：
+
+* 在终端中输入以下命令安装libgl1-mesa-swx11包：
+
+<pre>sudo apt-get install libgl1-mesa-swx11</pre>
+
+这可能会导致虚拟包libgl1与libgl1-mesa-swx11包冲突，此时需按提示移除后者。
+
+* 按常规准备Tectonicus控制台命令，需设置minecraftJar=，若仍遇错误，需设置useBiomeColours=false。
+
+关于控制台命令的更多信息，可参考[此处](辅助程序与编辑器/Tectonicus/从命令行中控制Tectonicus.md)。
+
+# 警告
+有报告称，安装该包后硬件渲染速度会变慢，因此建议关闭所有桌面合成效果。
+
+[Category:地图查看工具](Category:地图查看工具.md)
+
+[en:Tutorial:Programs and editors/Tectonicus/Integrated Video](en:Tutorial:Programs and editors/Tectonicus/Integrated Video.md)

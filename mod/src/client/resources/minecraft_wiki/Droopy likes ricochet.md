@@ -1,0 +1,25 @@
+# Droopy likes ricochet
+
+*页面ID: 169653* | *来源: Minecraft Wiki*
+
+* *Droopy likes ricochet**是一首由[C418](C418.md)创作的音乐，该音乐未被游戏使用。
+
+# 描述
+Droopy likes ricochet由低沉、混响的合成鼓组成，先以中速节奏开始演奏，然后渐渐过渡到更丰富的声音，开启一段平静、悠闲的合成音乐作品。乐曲结尾随后过渡到[Droopy likes your face](Droopy likes your face.md)。
+
+# 你知道吗
+* 此曲目来自C418的前一张专辑*life changing moments seem minor in pictures*。
+* C418专辑[*148*](https://c418.org/albums/148)中的*Droopy Remembers*是本曲目和*Droopy likes your face*的混音版。
+* 该曲目的曲名“Droopy likes ricochet”是C418对他购买的[Kontakt](wikipedia:Kontakt (software).md)软件采样器的素材库的其中一个人声片段的空耳，而这个声音片段出自[德州仪器](wzh:德州仪器.md)的[Magic Wand Reader](wikipedia:Magic Wand Speak & Learn.md)阅读其出版的有声读物[*The Droopy Dragon*](https://isbnsearch.org/isbn/9780895120632)的阅读音效采样。<ref>https://youtu.be/G7SOmfj-hmM</ref>C418在创作时并不知道这个声音片段实际上在说什么，该曲名的原句为“Droopy looks under a tree”。
+* * Magic Wand Reader阅读*The Droopy Dragon*的声音片段在C418的专辑[*148*](https://c418.org/albums/148)的曲目*Droopy Remembers*中再次被使用。
+
+# 参考
+
+# 导航
+
+[Category:C418](Category:C418.md)
+[Category:Minecraft - Volume Alpha](Category:Minecraft - Volume Alpha.md)
+
+[en:Droopy likes ricochet](en:Droopy likes ricochet.md)
+[ko:Droopy likes ricochet](ko:Droopy likes ricochet.md)
+[pt:Droopy likes ricochet](pt:Droopy likes ricochet.md)

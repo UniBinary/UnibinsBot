@@ -1,0 +1,9 @@
+# Java版26.1 Snapshot 5
+
+*页面ID: 184353* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **Java版26.1-snapshot-5**
+
+如需查看内容，请访问: [Java版26.1-snapshot-5](Java版26.1-snapshot-5.md)

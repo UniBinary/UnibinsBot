@@ -56,6 +56,19 @@ processResources {
 	filesMatching("fabric.mod.json") {
 		expand "version": inputs.properties.version
 	}
+	
+	// 包含minecraft_wiki目录到jar包中
+	from("src/client/resources/minecraft_wiki") {
+		into "minecraft_wiki"
+	}
+	
+	// 包含scripts目录到jar包中
+	from("src/client/resources/scripts") {
+		into "scripts"
+	}
+	
+	// 处理重复文件问题
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 tasks.withType(JavaCompile).configureEach {

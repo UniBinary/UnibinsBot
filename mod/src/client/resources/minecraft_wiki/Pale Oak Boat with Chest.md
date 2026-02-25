@@ -1,0 +1,9 @@
+# Pale Oak Boat with Chest
+
+*页面ID: 160898* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **运输船**
+
+如需查看内容，请访问: [运输船](运输船.md)

@@ -1,0 +1,9 @@
+# Mojang Specifications
+
+*页面ID: 170254* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **:Mojang_Studios**
+
+如需查看内容，请访问: [:Mojang_Studios](:Mojang_Studios.md)

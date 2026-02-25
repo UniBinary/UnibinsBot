@@ -1,0 +1,9 @@
+# Lingering Potion of Luck
+
+*页面ID: 161196* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **滞留药水**
+
+如需查看内容，请访问: [滞留药水](滞留药水.md)

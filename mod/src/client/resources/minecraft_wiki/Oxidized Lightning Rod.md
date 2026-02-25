@@ -1,0 +1,9 @@
+# Oxidized Lightning Rod
+
+*页面ID: 159624* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **避雷针**
+
+如需查看内容，请访问: [避雷针](避雷针.md)

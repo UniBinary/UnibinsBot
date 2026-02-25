@@ -1,0 +1,9 @@
+# Java版Infdev 20100325
+
+*页面ID: 173582* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **Java版Infdev 20100325-1640**
+
+如需查看内容，请访问: [Java版Infdev 20100325-1640](Java版Infdev 20100325-1640.md)

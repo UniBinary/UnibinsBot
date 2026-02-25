@@ -1,0 +1,27 @@
+# Ryan Cooper
+
+*页面ID: 181115* | *来源: Minecraft Wiki*
+
+* *Ryan Cooper**是[Mojang Studios](Mojang Studios.md)的Minecraft游戏负责人（总经理）。办公地点位于Mojang Studios美国雷德蒙德办公室。<ref>[Ryan Cooper的领英页面](https://www.linkedin.com/in/ryanbcooper/)</ref>
+
+停止社区投票并改变游戏更新节奏的公告就是由Ryan Cooper发布的。<ref></ref>
+
+# 关于
+2000年9月，Ryan Cooper加入微软，领导和管理Xbox工程部门的项目管理团队，设计打造了Xbox Live服务。
+
+2010年12月，Ryan Cooper加入暴雪，领导制作、工程、美术和设计团队。负责暴雪核心系列游戏的开发，包括《暗黑破坏神III》（首席制作人）、《魔兽世界》、《星际争霸II》和《炉石传说》。同时领导了Battle.net（暴雪战网）的开发。
+
+2012年8月，Ryan Cooper回到微软，担任《极限竞速》执行制作人，开发项目包括《极限竞速5》、《极限竞速6》与《极限竞速7》。
+
+2018年2月，Ryan Cooper加入Mojang Studios，陆续担任多个职位，包括：生态系统体验负责人，商业工程负责人，生产负责人和执行制作人。
+
+2023年12月，Ryan Cooper晋升为Minecraft游戏负责人（总经理）。负责Minecraft游戏开发和Minecraft创作者生态系统的发展。负责为Minecraft系列游戏制定战略并持续发展。
+
+# 画廊
+<gallery>
+Mojavatar-Ryan-Cooper-100x148.jpg|Ryan Cooper的Mojang头像
+</gallery>
+
+# 参考
+
+# 导航

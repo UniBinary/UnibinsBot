@@ -1,0 +1,9 @@
+# Pearlescent Froglight
+
+*页面ID: 160553* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **蛙明灯**
+
+如需查看内容，请访问: [蛙明灯](蛙明灯.md)

@@ -1,0 +1,5 @@
+# Java版Alpha服务器0.2.5-0923
+
+*页面ID: 181580* | *来源: Minecraft Wiki*
+
+# 重定向 [Java版Alpha服务器0.2.5](Java版Alpha服务器0.2.5.md)

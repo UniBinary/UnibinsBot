@@ -1,0 +1,9 @@
+# Java版1.16 Pre-release 8
+
+*页面ID: 178842* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **Java版1.16-pre8**
+
+如需查看内容，请访问: [Java版1.16-pre8](Java版1.16-pre8.md)

@@ -1,0 +1,9 @@
+# 指令/function
+
+*页面ID: 60795* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **命令/function**
+
+如需查看内容，请访问: [命令/function](命令/function.md)

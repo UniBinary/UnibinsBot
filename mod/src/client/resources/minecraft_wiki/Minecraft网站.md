@@ -1,0 +1,9 @@
+# Minecraft网站
+
+*页面ID: 180284* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **Minecraft.net**
+
+如需查看内容，请访问: [Minecraft.net](Minecraft.net.md)

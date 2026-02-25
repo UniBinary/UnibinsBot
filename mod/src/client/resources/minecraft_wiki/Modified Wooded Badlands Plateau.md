@@ -1,0 +1,9 @@
+# Modified Wooded Badlands Plateau
+
+*页面ID: 186685* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **繁茂的恶地高原变种**
+
+如需查看内容，请访问: [繁茂的恶地高原变种](繁茂的恶地高原变种.md)

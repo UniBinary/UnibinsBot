@@ -1,0 +1,5 @@
+# Java版1.12-pre3-1317
+
+*页面ID: 181601* | *来源: Minecraft Wiki*
+
+# 重定向 [Java版1.12-pre3](Java版1.12-pre3.md)

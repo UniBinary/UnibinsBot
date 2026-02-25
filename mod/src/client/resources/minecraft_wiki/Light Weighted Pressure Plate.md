@@ -1,0 +1,9 @@
+# Light Weighted Pressure Plate
+
+*页面ID: 159867* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **轻质测重压力板**
+
+如需查看内容，请访问: [轻质测重压力板](轻质测重压力板.md)

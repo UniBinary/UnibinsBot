@@ -1,0 +1,33 @@
+# 定制服务器/SpigotMC
+
+*页面ID: 36295* | *来源: Minecraft Wiki*
+
+SpigotMC，也简称为Spigot，是流行[Bukkit](Bukkit.md)服务器mod的一个分支。Spigot旨在提高传统Bukkit[服务器](服务器.md)Mod的性能和效率，同时仍然保持与Bukkit服务器[Mod](Mod.md)的插件的兼容性。许多大型服务器使用Spigot，因为较大的服务器倾向于使用比普通服务器更多的资源。 Spigot也非常适合缺乏购买硬件升级或支付托管费用的家庭服务器。家庭服务器往往滞后很多，通常是因为互联网限制或缺乏资源。通过运行“Minecraft”服务器，Spigot可以帮助减轻计算机上的压力，并消除游戏中的一些延迟。
+
+# 特征
+* 提升网络吞吐量
+* 优化生长、凋落以及区块周期 <!-- Optimized growth, decay and chunk ticking -->
+* 自动堆叠物品和经验球
+* 防止区块泄露的垃圾区块收集器
+* 可以配置的vanilla/Bukkit消息相关值（例如白名单；不含权限设置） <!-- Configurable values for many vanilla/Bukkit messages (e.g. whitelist, no permission) -->
+* 停用随机光照刷新
+* 优化反X-ray矿物射线（Orebfuscator插件）
+* 高效的Netty网络引擎
+* 智能检测、预防崩溃和挂起
+* 实体激活、范围追踪机制，确保客户端和服务器端资源只在需要时使用
+* 防止地图被放置在物品展示框中导致服务器负载
+* 服务器崩溃时自动重新启动
+* 当有新版CraftBukkit时自动更新，保证在最新版本
+* 完全禁用TAB命令的能力 <!-- Ability to disable TAB command complete -->
+* 对控制台日志信息进行定制
+* 对生长率、区块和时间的精确控制 <!-- Fine control over growth rates, chunks, and ticks -->
+* 提升每秒的帧数（FPS）
+* 优化时间周期循环
+* 使用节省存储空间的半字节数组
+* 更准确的基准定时报告 <!-- More accurate benchmark timings reports -->
+* 可配置的区块数据包发送
+* 多线程区块压缩
+
+[Category:Mod](Category:Mod.md)
+
+[ru:Spigot](ru:Spigot.md)

@@ -1,0 +1,9 @@
+# Potted Acacia Sapling
+
+*页面ID: 160527* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **花盆**
+
+如需查看内容，请访问: [花盆](花盆.md)

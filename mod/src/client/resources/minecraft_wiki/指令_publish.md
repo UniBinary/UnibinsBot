@@ -1,0 +1,9 @@
+# 指令/publish
+
+*页面ID: 60837* | *来源: Minecraft Wiki*
+
+## 重定向页面
+
+此页面重定向到: **命令/publish**
+
+如需查看内容，请访问: [命令/publish](命令/publish.md)
